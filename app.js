@@ -32,10 +32,7 @@ app.get('/api/users', async (req, res) => {
 });
 
 app.get('/api/users/:_id/logs', async (req, res) => {
-    let from = req.query.from;
-    let to = req.query.to;
-    let limit = req.query.limit;
-    
+    let {from, to, limit} = req.query;
     try {
         const user = await User.findById(req.params._id).select('-__v');
         if (from) {
@@ -45,7 +42,6 @@ app.get('/api/users/:_id/logs', async (req, res) => {
                 return d1 >= d2;
             });
         }
-
         if (to) {
             user.log = user.log.filter(obj => {
                 let d1 = Date.parse(obj.date);
@@ -65,7 +61,6 @@ app.get('/api/users/:_id/logs', async (req, res) => {
 });
 
 app.post('/api/users', async (req, res) => {
-    // Create new user
     const user = new User({
         username: req.body.username
     });
@@ -85,12 +80,11 @@ app.post('/api/users/:_id/exercises', async (req, res) => {
         const user = await User.findById(req.params._id);
         let date = req.body.date;
         if (date) {
-            date = req.body.date.split('-');
-            date = new Date(date[0], date[1]-1, date[2]).toDateString();
+            date = req.body.date.split('-');    // Avoid alteration by TZ //
+            date = new Date(date[0], date[1]-1, date[2]).toDateString(); //
         } else {
             date = new Date().toDateString();
         }
-        
         user.log.push({
             description: req.body.description,
             duration: req.body.duration,
