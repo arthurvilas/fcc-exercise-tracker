@@ -22,13 +22,22 @@ app.get('/', (req, res) => {
     res.sendFile('index.html');
 });
 
+app.get('/api/users', async (req, res) => {
+    try {
+        const users = await User.find({}, 'username _id');
+        res.json(users);
+    } catch (err) {
+        res.json({message: err});
+    }
+});
+
 app.get('/api/users/:_id/logs', async (req, res) => {
     let from = req.query.from;
     let to = req.query.to;
     let limit = req.query.limit;
     
     try {
-        const user = await User.findById(req.params._id);
+        const user = await User.findById(req.params._id).select('-__v');
         if (from) {
             user.log = user.log.filter(obj => {
                 let d1 = Date.parse(obj.date);
