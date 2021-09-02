@@ -83,8 +83,14 @@ app.post('/api/users', async (req, res) => {
 app.post('/api/users/:_id/exercises', async (req, res) => {
     try {
         const user = await User.findById(req.params._id);
-        let date = req.body.date.split('-');
-        date = new Date(date[0], date[1]-1, date[2]).toDateString();
+        let date = req.body.date;
+        if (date) {
+            date = req.body.date.split('-');
+            date = new Date(date[0], date[1]-1, date[2]).toDateString();
+        } else {
+            date = new Date().toDateString();
+        }
+        
         user.log.push({
             description: req.body.description,
             duration: req.body.duration,
